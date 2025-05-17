@@ -60,11 +60,6 @@ spec:
         volumeMounts:
         - name: mysql-data
           mountPath: /var/lib/mysql
-        env:
-          - name: MYSQL_ROOT_PASSWORD
-            value: {{.Data.data.MYSQL_ROOT_PASSWORD}}
-          - name: MYSQL_DATABASE
-            value: {{.Data.data.MYSQL_DATABASE}}
   volumeClaimTemplates:
   - metadata:
       name: mysql-data
