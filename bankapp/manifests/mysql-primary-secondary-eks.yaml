@@ -50,6 +50,7 @@ spec:
         app: mysql
         release: my-mysql-release
     spec:
+      serviceAccountName: vault-sa
       containers:
       - name: mysql
         image: mysql:8.0
