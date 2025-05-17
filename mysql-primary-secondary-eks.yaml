@@ -31,6 +31,19 @@ spec:
       app: mysql
       release: my-mysql-release
   template:
+    annotations:
+      vault.hashicorp.com/agent-inject: "true"
+      vault.hashicorp.com/agent-inject-secret-MYSQL_ROOT_PASSWORD: "kv-v2/vault-demo/mysql"
+      vault.hashicorp.com/agent-inject-template-MYSQL_ROOT_PASSWORD: |
+        {{- with secret "kv-v2/vault-demo/mysql" -}}
+        export MYSQL_ROOT_PASSWORD="{{.Data.data.MYSQL_ROOT_PASSWORD}}"
+        {{- end }}
+      vault.hashicorp.com/agent-inject-secret-MYSQL_DATABASE: "kv-v2/vault-demo/mysql"
+      vault.hashicorp.com/agent-inject-template-MYSQL_DATABASE: |
+        {{- with secret "kv-v2/vault-demo/mysql" -}}
+        export MYSQL_DATABASE="{{.Data.data.MYSQL_DATABASE}}"
+        {{- end }}
+      vault.hashicorp.com/role: "myrole"
     metadata:
       labels:
         app: mysql
