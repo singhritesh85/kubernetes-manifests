@@ -1,0 +1,72 @@
+
+# service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-service
+  labels:
+    app: mysql
+spec:
+  type: ClusterIP
+  clusterIP: None # Headless service for stable pod DNS
+  ports:
+  - port: 3306
+    name: mysql
+  selector:
+    app: mysql
+    release: my-mysql-release # Replace with your release name
+
+# statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql-statefulset
+  labels:
+    app: mysql
+    release: my-mysql-release # Replace with your release name
+spec:
+  serviceName: mysql-service
+  replicas: 2 # Primary and secondary pods
+  selector:
+    matchLabels:
+      app: mysql
+      release: my-mysql-release
+  template:
+    annotations:
+      vault.hashicorp.com/agent-inject: "true"
+      vault.hashicorp.com/agent-inject-secret-MYSQL_ROOT_PASSWORD: "kv-v2/vault-demo/mysql"
+      vault.hashicorp.com/agent-inject-template-MYSQL_ROOT_PASSWORD: |
+        {{- with secret "kv-v2/vault-demo/mysql" -}}
+        export MYSQL_ROOT_PASSWORD="{{.Data.data.MYSQL_ROOT_PASSWORD}}"
+        {{- end }}
+      vault.hashicorp.com/agent-inject-secret-MYSQL_DATABASE: "kv-v2/vault-demo/mysql"
+      vault.hashicorp.com/agent-inject-template-MYSQL_DATABASE: |
+        {{- with secret "kv-v2/vault-demo/mysql" -}}
+        export MYSQL_DATABASE="{{.Data.data.MYSQL_DATABASE}}"
+        {{- end }}
+      vault.hashicorp.com/role: "myrole"
+    metadata:
+      labels:
+        app: mysql
+        release: my-mysql-release
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:8.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3306
+          name: mysql
+        volumeMounts:
+        - name: mysql-data
+          mountPath: /var/lib/mysql
+  volumeClaimTemplates:
+  - metadata:
+      name: mysql-data
+    spec:
+      accessModes:
+      - ReadWriteOnce # Only one pod at a time can mount this volume
+      resources:
+        requests:
+          storage: 1Gi # Adjust storage size as needed
+      storageClassName: gp2 #  Specify your EBS storage class
