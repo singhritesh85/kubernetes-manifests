@@ -60,13 +60,4 @@ spec:
         volumeMounts:
         - name: mysql-data
           mountPath: /var/lib/mysql
-  volumeClaimTemplates:
-  - metadata:
-      name: mysql-data
-    spec:
-      accessModes:
-      - ReadWriteOnce # Only one pod at a time can mount this volume
-      resources:
-        requests:
-          storage: 1Gi # Adjust storage size as needed
-      storageClassName: gp2 #  Specify your EBS storage class
+  
