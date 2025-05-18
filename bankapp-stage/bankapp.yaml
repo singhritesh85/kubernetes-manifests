@@ -21,7 +21,7 @@ spec:
         - containerPort: 8080
         imagePullPolicy: Always
       imagePullSecrets:
-      - regcred
+      -name: regcred
 ---
 # Bank Application Service
 apiVersion: v1
