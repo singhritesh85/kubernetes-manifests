@@ -1,0 +1,93 @@
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  serviceName: mysql-svc
+  replicas: 2 # by default is 1
+  template:
+    metadata:
+      annotations:
+        vault.hashicorp.com/agent-inject: 'true'
+        vault.hashicorp.com/agent-inject-status: 'update'
+        vault.hashicorp.com/role: 'bankapp'
+        vault.hashicorp.com/agent-inject-secret-db-password: 'bankapp/data/database/config'
+        vault.hashicorp.com/agent-inject-template-db-password: |
+          {{- with secret "bankapp/data/database/config" -}}
+          {{ .Data.data.password }}
+          {{- end -}}
+      labels:
+        app: mysql # has to match .spec.selector.matchLabels
+    spec:
+      serviceAccountName: bankapp-sa
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: mysql
+        image: mariadb:10-focal
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - mysqladmin -u root -p`cat /vault/secrets/db-password` ping
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - mysql -u root -p`cat /vault/secrets/db-password` -e "select 1"
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+        envFrom:
+        - configMapRef:
+            name: mysql-cm
+        ports:
+        - containerPort: 3306
+          name: mysql
+        volumeMounts:
+        - name: mysql-data
+          mountPath: /var/lib/mysql
+  volumeClaimTemplates:
+  - metadata:
+      name: mysql-data
+    spec:
+      accessModes:
+      - ReadWriteOnce # Only one pod at a time can mount this volume
+      resources:
+        requests:
+          storage: 1Gi # Adjust storage size as needed
+      storageClassName: managed-csi #  Specify your EBS storage class
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-svc
+spec:
+  selector:
+    app: mysql
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-svc-headless
+spec:
+  selector:
+    app: mysql
+  clusterIP: None
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
