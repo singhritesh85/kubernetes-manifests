@@ -5,5 +5,5 @@ metadata:
   name: mysql-cm
   namespace: mysql
 data:
-  MYSQL_DATABASE: bankappdb
+  MYSQL_DATABASE: dexter
   MYSQL_ROOT_PASSWORD_FILE: /vault/secrets/db-password
