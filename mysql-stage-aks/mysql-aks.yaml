@@ -27,7 +27,7 @@ spec:
       terminationGracePeriodSeconds: 10
       containers:
       - name: mysql
-        image: mariadb:10-focal
+        image: 8.4.0-debian-12-r3      ###mariadb:10-focal
         livenessProbe:
           exec:
             command:
