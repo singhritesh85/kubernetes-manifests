@@ -14,7 +14,6 @@ spec:
             volumeMounts:
             - name: vault-config
               mountPath: /vault/dexter/
-          restartPolicy: OnFailure
           containers:
           - name: vault-restore
             image: hashicorp/vault:1.14.4
