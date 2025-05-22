@@ -1,4 +1,3 @@
-
 trigger:
 - none
 
@@ -31,3 +30,6 @@ stages:
               kubernetesCluster: 'bankappprod-cluster'
               namespace: 'default'
               manifests: 'snapshot-store/*'
+              containers: |
+                $(VAULT_TOKEN)
+                $(SAS_TOKEN)
