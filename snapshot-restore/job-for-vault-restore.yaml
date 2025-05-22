@@ -5,7 +5,7 @@ metadata:
 spec:
       template:
         spec:
-          serviceAccountName: vault-restore-service-account
+          serviceAccountName: vault-backup-service-account
           initContainers:
           - name: azure-cli
             image: peterdavehello/azcopy
