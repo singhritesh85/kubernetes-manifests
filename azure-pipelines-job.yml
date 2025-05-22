@@ -27,7 +27,7 @@ stages:
               script: 'sed -i -e ''s/#{VAULT_TOKEN}#/$(VAULT_TOKEN)/g'' snapshot-restore/job-for-vault-restore.yaml'
           - task: CmdLine@2
             inputs:
-              script: 'sed -i -e ''s@#{SAS_TOKEN}#@$(SAS_TOKEN)@g'' snapshot-restore/job-for-vault-restore.yaml'
+              script: 'sed -i -e ''s@#{SAS_TOKEN_RESTORE}#@$(SAS_TOKEN_RESTORE)@g'' snapshot-restore/job-for-vault-restore.yaml'
           - task: KubernetesManifest@1
             inputs:
               action: 'deploy'
