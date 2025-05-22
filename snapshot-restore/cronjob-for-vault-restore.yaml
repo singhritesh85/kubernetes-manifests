@@ -1,0 +1,38 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: vault-restore
+spec:
+      template:
+        spec:
+          serviceAccountName: vault-restore-service-account
+          initContainers:
+          - name: azure-cli
+            image: peterdavehello/azcopy
+            command: ["/bin/sh", "-c"]
+            args: ["azcopy copy #{SAS_TOKEN}# /vault/dexter/ --recursive=true"]
+            volumeMounts:
+            - name: vault-config
+              mountPath: /vault/dexter/
+          restartPolicy: OnFailure
+          containers:
+          - name: vault-restore
+            image: hashicorp/vault:1.14.4
+            command: ["/bin/sh", "-c"]
+            args: ["vault operator raft snapshot restore /vault/dexter/raft-1747913881.snap"]
+            env:
+            # Set the Vault address using the Kubernetes service name
+            - name: VAULT_ADDR
+              value: http://vault-active.vault.svc.cluster.local:8200
+            - name: VAULT_TOKEN
+              value: #{VAULT_TOKEN}# 
+            #envFrom:
+            #- secretRef:
+            #    name: vault-azure-secret
+            volumeMounts:
+            - name: vault-config
+              mountPath: /vault/dexter/
+          restartPolicy: OnFailure
+          volumes:
+          - name: vault-config
+            emptyDir: {}
