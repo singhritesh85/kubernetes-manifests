@@ -19,7 +19,7 @@ spec:
             - name: VAULT_ADDR
               value: http://vault-active.vault.svc.cluster.local:8200
             - name: VAULT_TOKEN
-              value: $(VAULT_TOKEN)
+              value: #{VAULT_TOKEN}#
             #envFrom:
             #- secretRef:
             #    name: vault-azure-secret
@@ -30,7 +30,7 @@ spec:
           - name: azure-cli
             image: peterdavehello/azcopy
             command: ["/bin/sh", "-c"]
-            args: ["azcopy copy /vault/dexter/* $(SAS_TOKEN) --recursive=true"]
+            args: ["azcopy copy /vault/dexter/* #{SAS_TOKEN}# --recursive=true"]
             volumeMounts:
             - name: vault-config
               mountPath: /vault/dexter/
