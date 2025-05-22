@@ -9,11 +9,11 @@ pool:
   - agent.name -equals demo
 
 stages:
-- stage: CronJob-Snapshot
-  displayName: CronJob-Snapshot
+- stage: CronJobSnapshot
+  displayName: CronJobSnapshot
   jobs:
-  - deployment: CronJob-Snapshot
-    displayName: CronJob-Snapshot
+  - deployment: CronJobSnapshot
+    displayName: CronJobSnapshot
     environment: "prod"
     workspace:
       clean: all
