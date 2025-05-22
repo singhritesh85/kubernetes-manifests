@@ -21,6 +21,12 @@ stages:
         deploy:
           steps:
           - checkout: self
+          - task: CmdLine@2
+            inputs:
+              script: 'sed -i -e ''s/#{VAULT_TOKEN}#/$(VAULT_TOKEN)/g'' snapshot-store/cronjob-for-vaultbackup.yaml'
+          - task: CmdLine@2
+            inputs:
+              script: 'sed -i -e ''s/#{SAS_TOKEN}#/$(SAS_TOKEN)/g'' snapshot-store/cronjob-for-vaultbackup.yaml'
           - task: KubernetesManifest@1
             inputs:
               action: 'deploy'
@@ -30,6 +36,3 @@ stages:
               kubernetesCluster: 'bankappprod-cluster'
               namespace: 'default'
               manifests: 'snapshot-store/*'
-              containers: |
-                $(VAULT_TOKEN)
-                $(SAS_TOKEN)
