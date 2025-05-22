@@ -3,7 +3,7 @@ kind: CronJob
 metadata:
   name: vault-backup
 spec:
-  schedule: "* * * * *"  # Runs daily at midnight
+  schedule: "* * * * *"  # Runs every minute.
   jobTemplate:
     spec:
       template:
