@@ -1,0 +1,40 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: vault-backup
+spec:
+  schedule: "* * * * *"  # Runs daily at midnight
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: vault-backup-service-account
+          initContainers:
+          - name: vault-backup
+            image: hashicorp/vault:1.14.4
+            command: ["/bin/sh", "-c"]
+            args: ["vault operator raft snapshot save /vault/dexter/raft-`date +%s`.snap"]
+            env:
+            # Set the Vault address using the Kubernetes service name
+            - name: VAULT_ADDR
+              value: http://vault-active.vault.svc.cluster.local:8200
+            - name: VAULT_TOKEN
+              value: $(VAULT_TOKEN)
+            #envFrom:
+            #- secretRef:
+            #    name: vault-azure-secret
+            volumeMounts:
+            - name: vault-config
+              mountPath: /vault/dexter/
+          containers:
+          - name: azure-cli
+            image: peterdavehello/azcopy
+            command: ["/bin/sh", "-c"]
+            args: ["azcopy copy /vault/dexter/* $(SAS_TOKEN) --recursive=true"]
+            volumeMounts:
+            - name: vault-config
+              mountPath: /vault/dexter/
+          restartPolicy: OnFailure
+          volumes:
+          - name: vault-config
+            emptyDir: {}
