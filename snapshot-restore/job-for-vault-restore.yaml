@@ -10,7 +10,7 @@ spec:
           - name: azure-cli
             image: peterdavehello/azcopy
             command: ["/bin/sh", "-c"]
-            args: ["azcopy copy #{SAS_TOKEN}# /vault/dexter/ --recursive=true"]
+            args: ["azcopy copy #{SAS_TOKEN_RESTORE}# /vault/dexter/ --recursive=true"]
             volumeMounts:
             - name: vault-config
               mountPath: /vault/dexter/
