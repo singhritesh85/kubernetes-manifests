@@ -1,59 +1,4 @@
 ---
-apiVersion: apiextensions.k8s.io/v1beta1
-kind: CustomResourceDefinition
-metadata:
-  name: verticalpodautoscalers.poc.autoscaling.k8s.io
-spec:
-  group: poc.autoscaling.k8s.io
-  version: v1alpha1
-  scope: Namespaced
-  names:
-    plural: verticalpodautoscalers
-    singular: verticalpodautoscaler
-    kind: VerticalPodAutoscaler
-    shortNames:
-      - vpa
-  validation:
-    # openAPIV3Schema is the schema for validating custom objects.
-    openAPIV3Schema:
-      type: object
-      properties:
-        spec:
-          type: object
-          required:
-            - selector
-          properties:
-            selector:
-              type: object
-            updatePolicy:
-              type: object
-              properties:
-                updateMode:
-                  type: string
-            resourcePolicy:
-              type: object
-              properties:
-                containerPolicies:
-                  type: array
-                  items:
-                    type: object
----
-apiVersion: apiextensions.k8s.io/v1beta1
-kind: CustomResourceDefinition
-metadata:
-  name: verticalpodautoscalercheckpoints.poc.autoscaling.k8s.io
-spec:
-  group: poc.autoscaling.k8s.io
-  version: v1alpha1
-  scope: Namespaced
-  names:
-    plural: verticalpodautoscalercheckpoints
-    singular: verticalpodautoscalercheckpoint
-    kind: VerticalPodAutoscalerCheckpoint
-    shortNames:
-      - vpacheckpoint
-
----
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
@@ -65,26 +10,46 @@ spec:
     kind: Deployment
     name: bankapp-folo
   minReplicas: 1
-  maxReplicas: 10
+  maxReplicas: 3
   metrics:
   - type: Resource
     resource:
       name: cpu
       target:
         type: Utilization
-        averageUtilization: 50 
+        averageValue: 1          ###averageUtilization: 50  ### For demonstration I used a targated value of 1  
 ---
 apiVersion: "autoscaling.k8s.io/v1"
 kind: VerticalPodAutoscaler
 metadata:
-  name: mysql-vpa
+  name: mysql-primary-vpa
   namespace: mysql
 spec:
   targetRef:
-  - apiVersion: "apps/v1"
+    apiVersion: "apps/v1"
     kind: StatefulSet
     name: mysql-primary
-  - apiVersion: "apps/v1"
+  updatePolicy:
+    updateMode: Auto
+  resourcePolicy:
+    containerPolicies:
+      - containerName: '*'
+        minAllowed:
+          cpu: 150m
+          memory: 128Mi
+        maxAllowed:
+          cpu: 300m       #maximum vpa will be allocating this many cpus even if demand is higher.
+          memory: 256Mi
+        controlledResources: ["cpu", "memory"]
+---
+apiVersion: "autoscaling.k8s.io/v1"
+kind: VerticalPodAutoscaler
+metadata:
+  name: mysql-secondary-vpa
+  namespace: mysql
+spec:
+  targetRef:
+    apiVersion: "apps/v1"
     kind: StatefulSet
     name: mysql-secondary
   updatePolicy:
@@ -93,9 +58,9 @@ spec:
     containerPolicies:
       - containerName: '*'
         minAllowed:
-          cpu: 100m
-          memory: 50Mi
+          cpu: 150m
+          memory: 128Mi
         maxAllowed:
-          cpu: 200m  #maximum vpa will be allocating this many cpus even if demand is higher.
-          memory: 500Mi
+          cpu: 300m  #maximum vpa will be allocating this many cpus even if demand is higher.
+          memory: 256Mi
         controlledResources: ["cpu", "memory"]
