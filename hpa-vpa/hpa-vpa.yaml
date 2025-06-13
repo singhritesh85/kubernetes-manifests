@@ -1,0 +1,46 @@
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: bankapp-hpa
+  namespace: bankapp
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: bankapp-folo
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50 
+---
+apiVersion: "autoscaling.k8s.io/v1"
+kind: VerticalPodAutoscaler
+metadata:
+  name: mysql-vpa
+  namespace: mysql
+spec:
+  targetRef:
+  - apiVersion: "apps/v1"
+    kind: StatefulSet
+    name: mysql-primary
+  - apiVersion: "apps/v1"
+    kind: StatefulSet
+    name: mysql-secondary
+  updatePolicy:
+    updateMode: Auto
+  resourcePolicy:
+    containerPolicies:
+      - containerName: '*'
+        minAllowed:
+          cpu: 100m
+          memory: 50Mi
+        maxAllowed:
+          cpu: 200m  #maximum vpa will be allocating this many cpus even if demand is higher.
+          memory: 500Mi
+        controlledResources: ["cpu", "memory"]
