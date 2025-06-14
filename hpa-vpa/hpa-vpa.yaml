@@ -33,7 +33,7 @@ spec:
     updateMode: Auto
   resourcePolicy:
     containerPolicies:
-      - containerName: '*'
+      - containerName: 'mysql'    ###'*'
         minAllowed:
           cpu: 600m
           memory: 650Mi
