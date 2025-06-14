@@ -19,7 +19,7 @@ spec:
         type: Utilization
         averageValue: 1          ###averageUtilization: 50  ### For demonstration I used a targated value of 1  
 ---
-apiVersion: "autoscaling.k8s.io/v2"
+apiVersion: "autoscaling.k8s.io/v1beta1"
 kind: VerticalPodAutoscaler
 metadata:
   name: mysql-vpa    ###mysql-primary-vpa
