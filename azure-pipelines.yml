@@ -9,11 +9,11 @@ pool:
   - agent.name -equals demo
 
 stages:
-- stage: HPA-VPA-in-AKS
-  displayName: HPA-VPA-in-AKS
+- stage: HPA_VPA_in_AKS
+  displayName: HPA_VPA_in_AKS
   jobs:
-  - deployment: HPA-VPA-in-AKS
-    displayName: HPA-VPA-in-AKS
+  - deployment: HPA_VPA_in_AKS
+    displayName: HPA_VPA_in_AKS
     environment: "dev"
     workspace:
       clean: all
