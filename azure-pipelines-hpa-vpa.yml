@@ -29,7 +29,7 @@ stages:
               azureResourceGroup: 'bankapp-rg'
               kubernetesCluster: 'bankapp-cluster'
               namespace: 'mysql'
-              manifests: '/vpa.yaml'
+              manifests: './vpa.yaml'
           - task: KubernetesManifest@1
             inputs:
               action: 'deploy'
@@ -38,4 +38,4 @@ stages:
               azureResourceGroup: 'bankapp-rg'
               kubernetesCluster: 'bankapp-cluster'
               namespace: 'bankapp'
-              manifests: '/hpa.yaml'
+              manifests: './hpa.yaml'
