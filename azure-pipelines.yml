@@ -29,4 +29,5 @@ stages:
               azureSubscriptionConnection: 'Azure DevOps Service Connection'
               azureResourceGroup: 'bankapp-rg'
               kubernetesCluster: 'bankapp-cluster'
+              namespace: '*'
               manifests: 'hpa-vpa/*'
