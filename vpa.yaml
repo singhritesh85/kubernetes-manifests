@@ -1,0 +1,23 @@
+---
+apiVersion: "autoscaling.k8s.io/v1"
+kind: VerticalPodAutoscaler
+metadata:
+  name: mysql-vpa    ###mysql-primary-vpa
+  namespace: mysql
+spec:
+  targetRef:
+    apiVersion: "apps/v1"
+    kind: StatefulSet
+    name: mysql      ###mysql-primary
+  updatePolicy:
+    updateMode: Auto
+  resourcePolicy:
+    containerPolicies:
+      - containerName: 'mysql'    ###'*'
+        minAllowed:
+          cpu: 800m
+          memory: 850Mi
+        maxAllowed:
+          cpu: 1024m       #maximum vpa will be allocating this many cpus even if demand is higher.
+          memory: 1024Mi
+        controlledResources: ["cpu", "memory"]
